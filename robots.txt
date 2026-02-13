@@ -1,0 +1,11 @@
+# Zeviewer Robots.txt
+# https://zeviewer.com
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://zeviewer.com/sitemap.xml
+
+# Crawl-delay (optional, for politeness)
+Crawl-delay: 1
