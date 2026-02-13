@@ -427,10 +427,14 @@ async function initData(){
 }
 
 async function loadFromSupabase(){
-    const {data:reviewData}=await supabase.from('reviews').select('*').order('created_at',{ascending:false});
-    if(reviewData)reviews=reviewData;
-    const {data:modelData}=await supabase.from('user_models').select('*').order('created_at',{ascending:false});
-    if(modelData)userModels=modelData;
+    try{
+        const {data:reviewData}=await supabase.from('reviews').select('*').order('created_at',{ascending:false});
+        if(reviewData)reviews=reviewData;
+    }catch(e){console.log('Reviews table not available')}
+    try{
+        const {data:modelData}=await supabase.from('user_models').select('*').order('created_at',{ascending:false});
+        if(modelData)userModels=modelData;
+    }catch(e){console.log('User models table not available')}
     renderModels();
     renderReviewsFeed();
     updateHeroStats();
@@ -446,23 +450,27 @@ function renderStars(n){return Array(5).fill(0).map(function(_,i){return '<svg c
 document.addEventListener('DOMContentLoaded',function(){initData();setupScrollReveal()});
 
 async function checkAuth(){
-    const {data:{session}}=await supabase.auth.getSession();
-    if(session?.user){
-        currentUser=session.user;
-        showSignedIn();
-    }else{
-        showSignedOut();
-    }
-    supabase.auth.onAuthStateChange(function(event,session){
+    try{
+        const {data:{session}}=await supabase.auth.getSession();
         if(session?.user){
             currentUser=session.user;
             showSignedIn();
-            if(pendingAction){pendingAction();pendingAction=null;}
         }else{
-            currentUser=null;
             showSignedOut();
         }
-    });
+        supabase.auth.onAuthStateChange(function(event,session){
+            if(session?.user){
+                currentUser=session.user;
+                showSignedIn();
+                if(pendingAction){pendingAction();pendingAction=null;}
+            }else{
+                currentUser=null;
+                showSignedOut();
+            }
+        });
+    }catch(e){
+        showSignedOut();
+    }
 }
 
 function showSignedIn(){
