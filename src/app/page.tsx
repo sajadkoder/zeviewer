@@ -1,8 +1,42 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { supabase, Review, UserModel } from "@/lib/supabase";
 import { aiModels, AIModel } from "@/data/models";
+
+const ModelCard = memo(function ModelCard({ model, stats, onClick }: { model: AIModel; stats: { count: number; avg: number }; onClick: () => void }) {
+  return (
+    <div className="model-card reveal" onClick={onClick}>
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <span className="badge badge-ai mb-2">{model.category}</span>
+          <h3 className="text-lg font-medium">
+            {model.new && <span className="badge badge-new mr-2">NEW</span>}
+            {model.openSource && <span className="badge badge-open-source mr-2">OPEN SOURCE</span>}
+            {model.isUser && <span className="badge mr-2" style={{ background: "rgba(168,85,247,0.2)", color: "#a855f7" }}>COMMUNITY</span>}
+            {model.name}
+          </h3>
+          <p className="text-[#a8a49e] text-sm">{model.company}</p>
+        </div>
+        <svg className="w-5 h-5 text-[#a8a49e] flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+      <p className="text-[#a8a49e] text-sm mb-4 line-clamp-2">{model.description}</p>
+      <div className="flex items-center gap-4 text-sm">
+        <span className="text-[#a8a49e]">{stats.count} review{stats.count !== 1 ? "s" : ""}</span>
+        {stats.avg > 0 && (
+          <div className="flex items-center gap-1">
+            <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            <span>{stats.avg.toFixed(1)}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
 
 export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -93,17 +127,37 @@ export default function Home() {
     setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
   };
 
-  const filteredModels = getAllModels().filter((m) => {
-    const searchMatch =
-      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const filterMatch =
-      currentFilter === "all" ||
-      m.category === currentFilter ||
-      (currentFilter === "open-source" && m.openSource);
-    return searchMatch && filterMatch;
-  });
+  const allModels = useMemo(() => getAllModels(), [userModels]);
+  
+  const filteredModels = useMemo(() => {
+    return allModels.filter((m) => {
+      const searchLower = searchQuery.toLowerCase();
+      const searchMatch =
+        !searchQuery ||
+        m.name.toLowerCase().includes(searchLower) ||
+        m.company.toLowerCase().includes(searchLower) ||
+        m.description.toLowerCase().includes(searchLower);
+      const filterMatch =
+        currentFilter === "all" ||
+        m.category === currentFilter ||
+        (currentFilter === "open-source" && m.openSource);
+      return searchMatch && filterMatch;
+    });
+  }, [allModels, searchQuery, currentFilter]);
+
+  const modelStatsMap = useMemo(() => {
+    const map: Record<number, { count: number; avg: number }> = {};
+    for (const model of allModels) {
+      const modelReviews = reviews.filter((r) => r.model_id === model.id);
+      const count = modelReviews.length;
+      const avg = count > 0 ? modelReviews.reduce((s, r) => s + r.rating, 0) / count : 0;
+      map[model.id] = { count, avg };
+    }
+    return map;
+  }, [allModels, reviews]);
+
+  const companiesCount = useMemo(() => new Set(allModels.map((m) => m.company)).size, [allModels]);
+  const categoriesCount = useMemo(() => new Set(allModels.map((m) => m.category)).size, [allModels]);
 
   const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -239,12 +293,9 @@ export default function Home() {
     document.getElementById("models")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const selectedModel = currentDetailModelId ? getAllModels().find((m) => m.id === currentDetailModelId) : null;
+  const selectedModel = currentDetailModelId ? allModels.find((m) => m.id === currentDetailModelId) : null;
   const modelReviews = currentDetailModelId ? reviews.filter((r) => r.model_id === currentDetailModelId) : [];
-  const stats = currentDetailModelId ? getModelStats(currentDetailModelId) : { count: 0, avg: 0 };
-
-  const companiesCount = new Set(getAllModels().map((m) => m.company)).size;
-  const categoriesCount = new Set(getAllModels().map((m) => m.category)).size;
+  const stats = currentDetailModelId ? modelStatsMap[currentDetailModelId] || { count: 0, avg: 0 } : { count: 0, avg: 0 };
 
   return (
     <>
@@ -399,45 +450,15 @@ export default function Home() {
               ))}
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredModels.map((model, i) => {
-                const s = getModelStats(model.id);
-                return (
-                  <div
-                    key={model.id}
-                    className="model-card reveal"
-                    style={{ transitionDelay: `${Math.min(i * 0.03, 0.5)}s` }}
-                    onClick={() => openDetailModal(model.id)}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <span className="badge badge-ai mb-2">{model.category}</span>
-                        <h3 className="text-lg font-medium">
-                          {model.new && <span className="badge badge-new mr-2">NEW</span>}
-                          {model.openSource && <span className="badge badge-open-source mr-2">OPEN SOURCE</span>}
-                          {model.isUser && <span className="badge mr-2" style={{ background: "rgba(168,85,247,0.2)", color: "#a855f7" }}>COMMUNITY</span>}
-                          {model.name}
-                        </h3>
-                        <p className="text-[#a8a49e] text-sm">{model.company}</p>
-                      </div>
-                      <svg className="w-5 h-5 text-[#a8a49e] flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                    <p className="text-[#a8a49e] text-sm mb-4 line-clamp-2">{model.description}</p>
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="text-[#a8a49e]">{s.count} review{s.count !== 1 ? "s" : ""}</span>
-                      {s.avg > 0 && (
-                        <div className="flex items-center gap-1">
-                          <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                          </svg>
-                          <span>{s.avg.toFixed(1)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              {filteredModels.map((model, i) => (
+                <div key={model.id} style={{ transitionDelay: `${Math.min(i * 0.03, 0.5)}s` }} className="reveal">
+                  <ModelCard 
+                    model={model} 
+                    stats={modelStatsMap[model.id] || { count: 0, avg: 0 }} 
+                    onClick={() => openDetailModal(model.id)} 
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </section>
