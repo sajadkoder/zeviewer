@@ -1,0 +1,646 @@
+import os
+
+html = r'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeviewer - AI Model Review Platform | Rate & Review AI Models</title>
+    <meta name="description" content="Zeviewer is an open AI model review platform. Browse, rate, and review the latest AI models from OpenAI, Google, Anthropic, Meta, DeepSeek and more. No login required. 158+ models including GPT-5, Claude Opus 4.6, Gemini 3, Llama 4, DeepSeek R2.">
+    <meta name="keywords" content="AI model reviews, ChatGPT reviews, Claude reviews, Gemini reviews, AI ratings, machine learning reviews, OpenAI, Anthropic, Google DeepMind, Meta AI, DeepSeek, Llama, Qwen, review AI models, rate AI models">
+    <meta name="author" content="Zeviewer">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta http-equiv="Cache-Control" content="max-age=3600, must-revalidate">
+    <meta property="og:title" content="Zeviewer - AI Model Review Platform">
+    <meta property="og:description" content="Open, community-driven AI model reviews. Browse 158+ AI models. No login required.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://zeviewer.com">
+    <meta property="og:site_name" content="Zeviewer">
+    <meta property="og:image" content="https://zeviewer.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Zeviewer - AI Model Review Platform">
+    <meta name="twitter:description" content="Open, community-driven AI model reviews. Browse 158+ AI models.">
+    <meta name="twitter:image" content="https://zeviewer.com/og-image.png">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="canonical" href="https://zeviewer.com/">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23f5f2eb' rx='15' width='100' height='100'/><text x='50' y='68' font-size='60' font-weight='bold' text-anchor='middle' fill='%230a0a0a'>Z</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23f5f2eb' rx='15' width='100' height='100'/><text x='50' y='68' font-size='60' font-weight='bold' text-anchor='middle' fill='%230a0a0a'>Z</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Zeviewer",
+        "description": "Open AI Model Review Platform - Browse, rate, and review the latest AI models",
+        "url": "https://zeviewer.com",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://zeviewer.com#models?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "about": {
+            "@type": "Thing",
+            "name": "AI Model Reviews",
+            "description": "Community-driven reviews of AI models including GPT, Claude, Gemini, Llama, DeepSeek and more"
+        },
+        "creator": {
+            "@type": "Organization",
+            "name": "Zeviewer"
+        }
+    }
+    </script>
+    <style>
+        :root{--bg:#0a0a0a;--bg-elevated:#141414;--fg:#faf8f5;--fg-muted:#a8a49e;--card:#1a1a1a;--border:#2a2a2a;--cream:#f5f2eb;--cream-dark:#e8e4dc}
+        *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+        body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--fg);overflow-x:hidden}
+        .font-serif{font-family:'Instrument Serif',serif}
+        .bg-pattern{position:fixed;inset:0;background-image:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(245,242,235,.03),transparent),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(245,242,235,.02),transparent);pointer-events:none;z-index:0}
+        .grid-overlay{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        .animate-fade-up{animation:fadeUp .8s ease-out forwards}
+        .stagger-1{animation-delay:.1s}.stagger-2{animation-delay:.2s}.stagger-3{animation-delay:.3s}.stagger-4{animation-delay:.4s}
+        .reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal.active{opacity:1;transform:translateY(0)}
+        ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+        .btn-primary{background:var(--cream);color:var(--bg);padding:14px 32px;border-radius:4px;font-weight:600;letter-spacing:.5px;transition:all .3s ease;border:none;cursor:pointer;position:relative;overflow:hidden}
+        .btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transform:translateX(-100%);transition:transform .5s ease}
+        .btn-primary:hover::before{transform:translateX(100%)}.btn-primary:hover{background:var(--cream-dark);transform:translateY(-2px);box-shadow:0 10px 30px rgba(245,242,235,.15)}
+        .btn-secondary{background:transparent;color:var(--fg);padding:14px 32px;border-radius:4px;font-weight:500;border:1px solid var(--border);transition:all .3s ease;cursor:pointer}
+        .btn-secondary:hover{border-color:var(--fg-muted);background:rgba(255,255,255,.02)}
+        .model-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;transition:all .4s cubic-bezier(.16,1,.3,1);cursor:pointer;position:relative;overflow:hidden}
+        .model-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cream),transparent);opacity:0;transition:opacity .3s ease}
+        .model-card:hover{border-color:rgba(245,242,235,.2);transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.3)}.model-card:hover::before{opacity:1}
+        .input-field{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:14px 18px;color:var(--fg);font-family:inherit;font-size:15px;transition:all .3s ease;width:100%}
+        .input-field:focus{outline:none;border-color:var(--cream);box-shadow:0 0 0 3px rgba(245,242,235,.1)}.input-field::placeholder{color:var(--fg-muted)}textarea.input-field{resize:vertical;min-height:120px}
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:all .3s ease}
+        .modal-overlay.active{opacity:1;visibility:visible}
+        .modal-content{background:var(--card);border:1px solid var(--border);border-radius:12px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;transform:scale(.9) translateY(20px);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+        .modal-overlay.active .modal-content{transform:scale(1) translateY(0)}.detail-modal .modal-content{max-width:800px}
+        .star-rating{display:flex;gap:4px}.star{width:28px;height:28px;cursor:pointer;transition:all .2s ease;color:var(--border)}.star:hover,.star.active{color:#fbbf24;transform:scale(1.1)}
+        .star-display{width:16px;height:16px}.stat-number{font-size:48px;font-weight:300;line-height:1;letter-spacing:-2px}
+        .toast{position:fixed;bottom:30px;right:30px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 24px;display:flex;align-items:center;gap:12px;z-index:200;transform:translateY(100px);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1)}.toast.show{transform:translateY(0);opacity:1}
+        .search-container{position:relative}.search-container svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--fg-muted)}.search-container input{padding-left:48px}
+        .filter-tag{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:100px;color:var(--fg-muted);font-size:13px;cursor:pointer;transition:all .3s ease}
+        .filter-tag:hover,.filter-tag.active{background:var(--cream);color:var(--bg);border-color:var(--cream)}
+        .badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:100px;font-size:12px;font-weight:500}.badge-ai{background:rgba(245,242,235,.1);color:var(--cream)}
+        .badge-new{background:rgba(34,197,94,.2);color:#22c55e}
+        .badge-open-source{background:rgba(59,130,246,.2);color:#60a5fa}
+        .review-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px;transition:all .3s ease}.review-item:hover{border-color:rgba(245,242,235,.2)}
+        .company-logos{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;opacity:.6}.company-logos span{padding:8px 16px;background:var(--card);border-radius:6px;font-size:13px}
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    </style>
+</head>
+<body>
+<div class="bg-pattern"></div><div class="grid-overlay"></div>
+<nav class="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-[#2a2a2a]">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<a href="/" class="flex items-center gap-3" onclick="window.scrollTo({top:0,behavior:'smooth'})"><div class="w-8 h-8 bg-[#f5f2eb] rounded flex items-center justify-center"><span class="text-[#0a0a0a] font-bold text-sm">Z</span></div><span class="text-xl font-semibold tracking-tight">zeviewer</span></a>
+<div class="hidden md:flex items-center gap-6"><a href="#models" class="text-[#a8a49e] hover:text-[#faf8f5] transition-colors text-sm">Models</a><a href="#how-it-works" class="text-[#a8a49e] hover:text-[#faf8f5] transition-colors text-sm">How It Works</a><a href="#all-reviews" class="text-[#a8a49e] hover:text-[#faf8f5] transition-colors text-sm">Reviews</a><button onclick="openAddModelModal()" class="text-[#a8a49e] hover:text-[#faf8f5] transition-colors text-sm">Add Model</button></div>
+<div class="flex items-center gap-4">
+<div id="auth-nav" class="hidden md:flex items-center gap-4">
+<span id="user-email-display" class="text-[#a8a49e] text-sm"></span>
+<button onclick="signOut()" class="text-[#a8a49e] hover:text-[#faf8f5] transition-colors text-sm">Sign Out</button>
+</div>
+<button id="sign-in-nav-btn" onclick="openAuthModal('signin')" class="btn-secondary text-sm py-2 px-4">Sign In</button>
+<button onclick="checkAuthAndReview()" class="btn-primary text-sm py-2 px-4">Write Review</button>
+</div>
+</div></nav>
+
+<main>
+<!-- Hero -->
+<section class="min-h-screen flex items-center pt-16 relative"><div class="max-w-7xl mx-auto px-6 py-20"><div class="max-w-4xl">
+<p class="text-[#a8a49e] text-sm tracking-widest uppercase mb-6 animate-fade-up opacity-0">AI Model Review Platform - 2026</p>
+<h1 class="text-5xl md:text-7xl lg:text-8xl font-light leading-[0.95] mb-8 animate-fade-up opacity-0 stagger-1">Shape the future of<br><span class="font-serif italic text-[#f5f2eb]">artificial intelligence</span></h1>
+<p class="text-xl text-[#a8a49e] max-w-2xl mb-12 leading-relaxed animate-fade-up opacity-0 stagger-2">Sign in to write reviews and add models. Browse 158+ AI models, drop your reviews, and see what everyone else thinks. Open and transparent.</p>
+<div class="flex flex-wrap gap-4 animate-fade-up opacity-0 stagger-3"><button onclick="scrollToModels()" class="btn-primary">Browse AI Models</button><button onclick="document.getElementById('all-reviews').scrollIntoView({behavior:'smooth'})" class="btn-secondary">See Reviews</button></div>
+</div>
+<div class="company-logos mt-16 pt-16 border-t border-[#2a2a2a] animate-fade-up opacity-0 stagger-4">
+<span>OpenAI</span><span>Anthropic</span><span>Google DeepMind</span><span>Meta</span><span>DeepSeek</span><span>Mistral</span><span>xAI</span><span>Alibaba</span><span>IBM</span><span>Stability AI</span><span>BigScience</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 pt-12 border-t border-[#2a2a2a] animate-fade-up opacity-0 stagger-4">
+<div><div class="stat-number text-[#f5f2eb]" id="stat-models-count">0</div><p class="text-[#a8a49e] mt-2">AI Models</p></div>
+<div><div class="stat-number text-[#f5f2eb]" id="stat-reviews-count">0</div><p class="text-[#a8a49e] mt-2">Reviews</p></div>
+<div><div class="stat-number text-[#f5f2eb]" id="stat-companies-count">0</div><p class="text-[#a8a49e] mt-2">Companies</p></div>
+<div><div class="stat-number text-[#f5f2eb]" id="stat-categories-count">0</div><p class="text-[#a8a49e] mt-2">Categories</p></div>
+</div></div>
+<div class="absolute right-10 top-1/3 hidden lg:block" style="animation:float 6s ease-in-out infinite"><div class="w-20 h-20 border border-[#2a2a2a] rounded-lg flex items-center justify-center"><svg class="w-8 h-8 text-[#a8a49e]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div></div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works" class="py-32 relative"><div class="max-w-7xl mx-auto px-6">
+<div class="text-center mb-20 reveal"><p class="text-[#a8a49e] text-sm tracking-widest uppercase mb-4">The Process</p><h2 class="text-4xl md:text-5xl font-light">How <span class="font-serif italic">Zeviewer</span> Works</h2></div>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="reveal"><div class="w-12 h-12 border border-[#f5f2eb] rounded-lg flex items-center justify-center mb-6"><span class="text-[#f5f2eb] font-semibold">01</span></div><h3 class="text-xl font-medium mb-4">Browse & Select</h3><p class="text-[#a8a49e] leading-relaxed">Explore the latest 2026 AI models from OpenAI, Google, Anthropic, Meta, DeepSeek, and many more. Filter by category or search.</p></div>
+<div class="reveal" style="transition-delay:.1s"><div class="w-12 h-12 border border-[#f5f2eb] rounded-lg flex items-center justify-center mb-6"><span class="text-[#f5f2eb] font-semibold">02</span></div><h3 class="text-xl font-medium mb-4">Drop Your Review</h3><p class="text-[#a8a49e] leading-relaxed">No login needed. Pick a model, rate it with stars, write your thoughts, and submit your review.</p></div>
+<div class="reveal" style="transition-delay:.2s"><div class="w-12 h-12 border border-[#f5f2eb] rounded-lg flex items-center justify-center mb-6"><span class="text-[#f5f2eb] font-semibold">03</span></div><h3 class="text-xl font-medium mb-4">See All Feedback</h3><p class="text-[#a8a49e] leading-relaxed">Every review is public. Click any model to read what others think and share your experience.</p></div>
+</div></div></section>
+
+<!-- Models -->
+<section id="models" class="py-32 relative"><div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 reveal">
+<div><p class="text-[#a8a49e] text-sm tracking-widest uppercase mb-4">Model Database - Updated Feb 2026</p><h2 class="text-4xl md:text-5xl font-light">Explore AI <span class="font-serif italic">Models</span></h2></div>
+<div class="mt-6 md:mt-0"><div class="search-container"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><input type="text" id="search-input" class="input-field w-64" placeholder="Search models..." oninput="filterModels()"></div></div>
+</div>
+<div class="flex flex-wrap gap-3 mb-10 reveal">
+<button class="filter-tag active" onclick="setFilter('all',this)">All</button>
+<button class="filter-tag" onclick="setFilter('language',this)">Language</button>
+<button class="filter-tag" onclick="setFilter('multimodal',this)">Multimodal</button>
+<button class="filter-tag" onclick="setFilter('reasoning',this)">Reasoning</button>
+<button class="filter-tag" onclick="setFilter('image',this)">Image</button>
+<button class="filter-tag" onclick="setFilter('video',this)">Video</button>
+<button class="filter-tag" onclick="setFilter('audio',this)">Audio</button>
+<button class="filter-tag" onclick="setFilter('code',this)">Code</button>
+<button class="filter-tag" onclick="setFilter('open-source',this)">Open Source</button>
+</div>
+<div id="models-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</div></section>
+
+<!-- All Reviews -->
+<section id="all-reviews" class="py-32 relative"><div class="max-w-7xl mx-auto px-6">
+<div class="text-center mb-16 reveal"><p class="text-[#a8a49e] text-sm tracking-widest uppercase mb-4">Community Feedback</p><h2 class="text-4xl md:text-5xl font-light">Latest <span class="font-serif italic">Reviews</span></h2><p class="text-[#a8a49e] mt-4 max-w-xl mx-auto">All reviews are public. See what everyone thinks about the latest AI models in 2026.</p></div>
+<div id="reviews-feed" class="max-w-3xl mx-auto"><p class="text-[#a8a49e] text-center py-8">No reviews yet. Be the first!</p></div>
+</div></section>
+
+<!-- CTA -->
+<section class="py-32 relative"><div class="max-w-7xl mx-auto px-6">
+<div class="bg-[#141414] border border-[#2a2a2a] rounded-2xl p-12 md:p-20 text-center reveal">
+<h2 class="text-3xl md:text-5xl font-light mb-6">Ready to make an <span class="font-serif italic">impact</span>?</h2>
+<p class="text-[#a8a49e] text-lg max-w-2xl mx-auto mb-10">No signup. No login. Just pick a model and share your honest review to help the community.</p>
+<button onclick="scrollToModels()" class="btn-primary">Start Reviewing Today</button>
+</div></div></section>
+
+<!-- Footer -->
+<footer class="border-t border-[#2a2a2a] py-16"><div class="max-w-7xl mx-auto px-6">
+<div class="grid md:grid-cols-4 gap-12">
+<div><div class="flex items-center gap-3 mb-6"><div class="w-8 h-8 bg-[#f5f2eb] rounded flex items-center justify-center"><span class="text-[#0a0a0a] font-bold text-sm">Z</span></div><span class="text-xl font-semibold tracking-tight">zeviewer</span></div><p class="text-[#a8a49e] text-sm">Open, community-driven AI model reviews. No login required. 158+ models.</p></div>
+<div><h4 class="font-medium mb-4">Platform</h4><ul class="space-y-3 text-[#a8a49e] text-sm"><li><a href="#models" class="hover:text-[#f5f2eb] transition-colors">Browse Models</a></li><li><a href="#all-reviews" class="hover:text-[#f5f2eb] transition-colors">Reviews</a></li><li><a href="#how-it-works" class="hover:text-[#f5f2eb] transition-colors">How It Works</a></li></ul></div>
+<div><h4 class="font-medium mb-4">Resources</h4><ul class="space-y-3 text-[#a8a49e] text-sm"><li><a href="/sitemap.xml" class="hover:text-[#f5f2eb] transition-colors">Sitemap</a></li><li><a href="/robots.txt" class="hover:text-[#f5f2eb] transition-colors">Robots.txt</a></li></ul></div>
+<div><h4 class="font-medium mb-4">Legal</h4><ul class="space-y-3 text-[#a8a49e] text-sm"><li><a href="#" class="hover:text-[#f5f2eb] transition-colors">Privacy Policy</a></li><li><a href="#" class="hover:text-[#f5f2eb] transition-colors">Terms of Service</a></li></ul></div>
+</div>
+<div class="border-t border-[#2a2a2a] mt-12 pt-8 text-center text-[#a8a49e] text-sm"><p>2026 Zeviewer. Open source AI model database. All rights reserved.</p></div>
+</div></footer>
+</main>
+
+<!-- Review Modal -->
+<div id="review-modal" class="modal-overlay" onclick="if(event.target===this)closeReviewModal()">
+<div class="modal-content" onclick="event.stopPropagation()"><div class="p-8">
+<div class="flex justify-between items-start mb-8"><div><p class="text-[#a8a49e] text-sm mb-2">Submitting review for</p><h2 class="text-2xl font-medium" id="modal-model-name"></h2></div><button onclick="closeReviewModal()" class="text-[#a8a49e] hover:text-[#f5f2eb]"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+<form id="review-form" onsubmit="submitReview(event)">
+<input type="hidden" id="review-model-id">
+<div class="mb-6"><label class="block text-sm text-[#a8a49e] mb-3">Overall Rating</label>
+<div class="star-rating" id="star-rating">
+<svg class="star" onclick="setRating(1)" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+<svg class="star" onclick="setRating(2)" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+<svg class="star" onclick="setRating(3)" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+<svg class="star" onclick="setRating(4)" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+<svg class="star" onclick="setRating(5)" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+</div><input type="hidden" id="rating-value" value="0"></div>
+<div class="mb-6"><label class="block text-sm text-[#a8a49e] mb-2">Your Name (optional)</label><input type="text" id="reviewer-name" class="input-field" placeholder="Anonymous"></div>
+<div class="mb-6"><label class="block text-sm text-[#a8a49e] mb-2">Review</label><textarea id="performance-review" class="input-field" placeholder="Share your experience with this AI model..." required></textarea></div>
+<div class="mb-6"><label class="block text-sm text-[#a8a49e] mb-2">Suggestions for Improvement</label><textarea id="improvement-suggestions" class="input-field" placeholder="What could be better?"></textarea></div>
+<div class="flex gap-4"><button type="button" onclick="closeReviewModal()" class="btn-secondary flex-1">Cancel</button><button type="submit" class="btn-primary flex-1">Submit Review</button></div>
+</form></div></div></div>
+
+<!-- Detail Modal -->
+<div id="detail-modal" class="modal-overlay detail-modal" onclick="if(event.target===this)closeDetailModal()">
+<div class="modal-content" onclick="event.stopPropagation()"><div class="p-8">
+<div class="flex justify-between items-start mb-6"><div><span class="badge badge-ai mb-2" id="detail-category"></span><h2 class="text-2xl font-medium" id="detail-model-name"></h2><p class="text-[#a8a49e]" id="detail-company"></p></div><button onclick="closeDetailModal()" class="text-[#a8a49e] hover:text-[#f5f2eb]"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+<p class="text-[#a8a49e] mb-6" id="detail-description"></p>
+<div class="flex items-center gap-6 mb-8 pb-6 border-b border-[#2a2a2a]">
+<div class="flex items-center gap-2"><svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="text-lg font-medium" id="detail-avg-rating">-</span></div>
+<span class="text-[#a8a49e]" id="detail-review-count">0 reviews</span>
+<button onclick="closeDetailModal();setTimeout(function(){openReviewModal(currentDetailModelId)},300)" class="btn-primary text-sm py-2 px-4 ml-auto">Write a Review</button>
+</div>
+<div id="detail-reviews"><p class="text-[#a8a49e] text-center py-8">No reviews yet. Be the first!</p></div>
+</div></div></div>
+
+<!-- Auth Modal -->
+<div id="auth-modal" class="modal-overlay" onclick="if(event.target===this)closeAuthModal()">
+<div class="modal-content" onclick="event.stopPropagation()"><div class="p-8">
+<div class="flex justify-between items-start mb-6"><div><h2 class="text-2xl font-medium" id="auth-modal-title">Sign In</h2><p class="text-[#a8a49e] text-sm mt-1" id="auth-modal-subtitle">Sign in to write reviews and add models</p></div><button onclick="closeAuthModal()" class="text-[#a8a49e] hover:text-[#f5f2eb]"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+<form id="auth-form" onsubmit="handleAuth(event)">
+<div class="mb-4"><label class="block text-sm text-[#a8a49e] mb-2">Email</label><input type="email" id="auth-email" class="input-field" placeholder="your@email.com" required></div>
+<div class="mb-4"><label class="block text-sm text-[#a8a49e] mb-2">Password</label><input type="password" id="auth-password" class="input-field" placeholder="Password" required></div>
+<div class="mb-4"><button type="submit" id="auth-submit-btn" class="btn-primary w-full">Sign In</button></div>
+</form>
+<p class="text-center text-[#a8a49e] text-sm">Don't have an account? <a href="#" onclick="toggleAuthMode(event)" class="text-[#f5f2eb] hover:underline" id="auth-toggle-link">Sign Up</a></p>
+<p id="auth-error" class="text-red-400 text-sm text-center mt-4 hidden"></p>
+</div></div></div>
+
+<!-- Add Model Modal -->
+<div id="add-model-modal" class="modal-overlay" onclick="if(event.target===this)closeAddModelModal()">
+<div class="modal-content" onclick="event.stopPropagation()"><div class="p-8">
+<div class="flex justify-between items-start mb-8"><div><h2 class="text-2xl font-medium">Add New Model</h2><p class="text-[#a8a49e] text-sm mt-1">Submit a new AI model to the database</p></div><button onclick="closeAddModelModal()" class="text-[#a8a49e] hover:text-[#f5f2eb]"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+<form id="add-model-form" onsubmit="submitNewModel(event)">
+<div class="mb-4"><label class="block text-sm text-[#a8a49e] mb-2">Model Name *</label><input type="text" id="model-name" class="input-field" placeholder="e.g., GPT-5" required></div>
+<div class="mb-4"><label class="block text-sm text-[#a8a49e] mb-2">Company/Organization *</label><input type="text" id="model-company" class="input-field" placeholder="e.g., OpenAI" required></div>
+<div class="mb-4"><label class="block text-sm text-[#a8a49e] mb-2">Category *</label><select id="model-category" class="input-field" required><option value="">Select category...</option><option value="language">Language</option><option value="multimodal">Multimodal</option><option value="reasoning">Reasoning</option><option value="image">Image</option><option value="video">Video</option><option value="audio">Audio</option><option value="code">Code</option></select></div>
+<div class="mb-4"><label class="block text-sm text-[#a8a49e] mb-2">Description *</label><textarea id="model-description" class="input-field" placeholder="Describe what this model does..." required></textarea></div>
+<div class="mb-4"><label class="block text-sm text-[#a8a49e] mb-2"><input type="checkbox" id="model-opensource" class="mr-2">Open Source Model</label></div>
+<div class="flex gap-4"><button type="button" onclick="closeAddModelModal()" class="btn-secondary flex-1">Cancel</button><button type="submit" class="btn-primary flex-1">Add Model</button></div>
+</form></div></div></div>
+
+<div id="toast" class="toast"><svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span id="toast-message"></span></div>
+
+<script>
+// Supabase Configuration
+const SUPABASE_URL = 'https://bwinbwgasszkbqgjstpn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3aW5id2dhc3N6a2JxZ2pzdHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjE4NzcsImV4cCI6MjA4NjQ5Nzg3N30.sYQRTBIOvwNsiZ-NT0GPRiYd7j2k1oNns2m7PkXO97Q';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let authMode = 'signin';
+let pendingAction = null;
+
+const aiModels=[
+// === PROPRIETARY MODELS ===
+{id:1,name:"GPT-5.3",company:"OpenAI",category:"multimodal",description:"Latest flagship multimodal model with advanced reasoning and agentic capabilities.",new:true},
+{id:2,name:"GPT-5.3 Codex",company:"OpenAI",category:"code",description:"Specialized coding variant of GPT-5.3 with enhanced programming capabilities.",new:true},
+{id:3,name:"GPT-5 Nano",company:"OpenAI",category:"language",description:"Lightweight, fast model for high-volume tasks. 0.7 GPQA score.",new:true},
+{id:4,name:"o3-mini",company:"OpenAI",category:"reasoning",description:"Compact reasoning model with adjustable thinking effort. Strong STEM performance.",new:false},
+{id:5,name:"o4-mini",company:"OpenAI",category:"reasoning",description:"Latest mini reasoning model with improved efficiency.",new:true},
+{id:6,name:"GPT-4o",company:"OpenAI",category:"multimodal",description:"Flagship multimodal model with vision, audio, and text capabilities.",new:false},
+{id:7,name:"GPT-4o mini",company:"OpenAI",category:"language",description:"Small, affordable model for fast responses.",new:false},
+{id:8,name:"DALL-E 4",company:"OpenAI",category:"image",description:"Latest image generation with photorealistic capabilities.",new:true},
+{id:9,name:"Sora",company:"OpenAI",category:"video",description:"Text-to-video model creating realistic footage up to 1 minute.",new:false},
+{id:10,name:"Whisper V4",company:"OpenAI",category:"audio",description:"State-of-the-art speech recognition with improved accuracy.",new:true},
+{id:11,name:"Claude Opus 4.6",company:"Anthropic",category:"language",description:"Anthropic's latest flagship model released Feb 2026. Advanced reasoning.",new:true},
+{id:12,name:"Claude 3.5 Sonnet",company:"Anthropic",category:"language",description:"Fast model excelling at coding, analysis, and complex reasoning.",new:false},
+{id:13,name:"Claude 3.5 Haiku",company:"Anthropic",category:"language",description:"Fastest Claude model for simple tasks. 0.4 GPQA score.",new:false},
+{id:14,name:"Claude Code",company:"Anthropic",category:"code",description:"Specialized coding assistant with agentic capabilities.",new:true},
+{id:15,name:"Gemini 3 Pro",company:"Google DeepMind",category:"multimodal",description:"Google's flagship model released Nov 2025. Record 1501 Elo score.",new:true},
+{id:16,name:"Gemini 3 Flash",company:"Google DeepMind",category:"multimodal",description:"Fast, lightweight multimodal model optimized for speed.",new:true},
+{id:17,name:"Gemini 3 Deep Think",company:"Google DeepMind",category:"reasoning",description:"Specialized reasoning mode for science and engineering.",new:true},
+{id:18,name:"Gemini 2.5 Flash Lite",company:"Google DeepMind",category:"language",description:"Cost-effective model with strong performance.",new:false},
+{id:19,name:"Gemini Diffusion",company:"Google DeepMind",category:"multimodal",description:"Latest diffusion-based multimodal model. 0.4 GPQA.",new:true},
+{id:20,name:"Imagen 4",company:"Google DeepMind",category:"image",description:"Google's highest quality text-to-image generation.",new:true},
+{id:21,name:"Veo 3",company:"Google DeepMind",category:"video",description:"Advanced video generation with native audio.",new:true},
+{id:22,name:"Grok-1.5",company:"xAI",category:"language",description:"xAI's latest model. 0.4 GPQA score.",new:true},
+{id:23,name:"Grok-2 Vision",company:"xAI",category:"multimodal",description:"Multimodal with real-time information.",new:true},
+{id:24,name:"Grok-2",company:"xAI",category:"language",description:"Model with real-time information access.",new:false},
+{id:25,name:"Mistral Large 3",company:"Mistral AI",category:"language",description:"Latest flagship with 200K context.",new:true},
+{id:26,name:"Mistral Small 3",company:"Mistral AI",category:"language",description:"Efficient model for high throughput.",new:true},
+{id:27,name:"Pixtral Large",company:"Mistral AI",category:"multimodal",description:"Mistral's multimodal model.",new:false},
+{id:28,name:"Command R+",company:"Cohere",category:"language",description:"Enterprise RAG-optimized model.",new:false},
+{id:29,name:"MiMo-V2-Flash",company:"Xiaomi",category:"language",description:"Xiaomi's latest. 0.8 GPQA score.",new:true},
+{id:30,name:"Kimi K2-Instruct",company:"Moonshot AI",category:"language",description:"200K+ token long-context model. 0.8 GPQA.",new:true},
+{id:31,name:"Kimi k1.5",company:"Moonshot AI",category:"reasoning",description:"Reasoning model with strong performance.",new:true},
+{id:32,name:"Kimi K2.5",company:"Moonshot AI",category:"reasoning",description:"Open-weight reasoning model. 96% on AIME 2025.",new:true},
+{id:33,name:"Doubao Pro",company:"ByteDance",category:"language",description:"ByteDance's flagship LLM.",new:false},
+{id:34,name:"Doubao 1.5",company:"ByteDance",category:"language",description:"Updated version with improved reasoning.",new:true},
+{id:35,name:"ERNIE 4.0 Turbo",company:"Baidu",category:"language",description:"Baidu's advanced LLM with enhanced capabilities.",new:true},
+{id:36,name:"ERNIE-ViLG 4.0",company:"Baidu",category:"image",description:"Text-to-image with Chinese cultural understanding.",new:true},
+{id:37,name:"GLM-4.5",company:"Zhipu AI",category:"language",description:"Bilingual model with strong performance.",new:true},
+{id:38,name:"GLM-4.7",company:"Zhipu AI",category:"language",description:"Highest intelligence open source model. 0.9 GPQA.",new:true},
+{id:39,name:"CogVideoX",company:"Zhipu AI",category:"video",description:"Open-source text-to-video model.",new:false},
+{id:40,name:"CogView-4",company:"Zhipu AI",category:"image",description:"Latest text-to-image with relay diffusion.",new:true},
+{id:41,name:"Yi-Lightning",company:"01.AI",category:"language",description:"Fast efficient model ranked top on benchmarks.",new:false},
+{id:42,name:"Yi-Large",company:"01.AI",category:"language",description:"Flagship with strong reasoning.",new:false},
+{id:43,name:"Step-2",company:"StepFun",category:"multimodal",description:"Trillion-parameter MoE model.",new:false},
+{id:44,name:"Step-2.5",company:"StepFun",category:"multimodal",description:"Updated multimodal with enhanced capabilities.",new:true},
+{id:45,name:"Phi-4 Mini",company:"Microsoft",category:"language",description:"Microsoft's efficient model. 0.3 GPQA.",new:true},
+{id:46,name:"Phi-4",company:"Microsoft",category:"language",description:"Strong reasoning in compact size.",new:false},
+{id:47,name:"Jamba 1.5 Large",company:"AI21 Labs",category:"language",description:"256K context hybrid SSM-Transformer.",new:false},
+{id:48,name:"Nova Pro",company:"Amazon",category:"multimodal",description:"Amazon's multimodal on Bedrock.",new:false},
+{id:49,name:"Nova Prime",company:"Amazon",category:"language",description:"Amazon's latest flagship.",new:true},
+{id:50,name:"Apple Intelligence 2",company:"Apple",category:"language",description:"Enhanced on-device AI.",new:true},
+{id:51,name:"Perplexity Pro",company:"Perplexity AI",category:"language",description:"Pro search with enhanced capabilities.",new:true},
+// === CHINESE FRONTIER MODELS ===
+{id:300,name:"Seedance 2.0",company:"ByteDance",category:"video",description:"ByteDance's latest video generation model. Sparked rally in China AI stocks.",new:true},
+{id:301,name:"Seedream 5.0",company:"ByteDance",category:"image",description:"ByteDance's latest image generation. Released Feb 2026.",new:true},
+{id:302,name:"Doubao Lite",company:"ByteDance",category:"language",description:"Lightweight version for fast responses.",new:true},
+{id:303,name:"Kling 3.0",company:"Kuaishou",category:"video",description:"Advanced video with Multi-Shot feature. Viral AI video generation.",new:true},
+{id:304,name:"Kling 2.0",company:"Kuaishou",category:"video",description:"Open-source video generation with high motion quality.",new:false,openSource:true},
+{id:305,name:"Hunyuan Turbo",company:"Tencent",category:"language",description:"Next-gen MoE. Smarter, faster, more affordable.",new:true},
+{id:306,name:"Hunyuan 3D-2",company:"Tencent",category:"multimodal",description:"Open source 3D generation model.",new:true,openSource:true},
+{id:307,name:"HunyuanImage 3.0",company:"Tencent",category:"image",description:"World's largest open-source image MoE. 80B params. 7th on LMArena.",new:true,openSource:true},
+{id:308,name:"Hunyuan-VL",company:"Tencent",category:"multimodal",description:"Vision-language model from Tencent.",new:false},
+{id:309,name:"Kimi k2",company:"Moonshot AI",category:"language",description:"Latest Kimi model with reasoning.",new:true},
+{id:310,name:"MiniMax-02",company:"MiniMax",category:"language",description:"Updated MiniMax flagship model.",new:true},
+{id:311,name:"Hailuo AI Video",company:"MiniMax",category:"video",description:"Free AI video generator.",new:false},
+{id:312,name:"Step3-VL-10B",company:"StepFun",category:"multimodal",description:"Vision-language model.",new:true},
+{id:313,name:"ERNIE-4E",company:"Baidu",category:"reasoning",description:"Baidu's latest reasoning model.",new:true},
+{id:314,name:"ERNIE 4.0",company:"Baidu",category:"language",description:"Baidu's flagship LLM powering ERNIE Bot.",new:false},
+{id:315,name:"ERNIE-ViLG 3.0",company:"Baidu",category:"image",description:"Text-to-image model with strong Chinese support.",new:false},
+{id:316,name:"GLM-5",company:"Zhipu AI",category:"language",description:"Latest GLM. Top open-source on Artificial Analysis.",new:true,openSource:true},
+{id:317,name:"GLM-4V",company:"Zhipu AI",category:"multimodal",description:"Vision-language version of GLM-4.",new:false},
+{id:318,name:"CogVideoX 2.0",company:"Zhipu AI",category:"video",description:"Updated text-to-video generation.",new:true,openSource:true},
+{id:319,name:"CogView-3",company:"Zhipu AI",category:"image",description:"Text-to-image using relay diffusion.",new:false},
+{id:320,name:"Yi-1.5 Chat",company:"01.AI",category:"language",description:"Chat-optimized Yi model.",new:true},
+{id:321,name:"SenseNova 6.0",company:"SenseTime",category:"multimodal",description:"Latest multimodal with strong vision.",new:true},
+{id:322,name:"SenseChat",company:"SenseTime",category:"language",description:"SenseTime's chat model.",new:true},
+{id:323,name:"InternLM 4",company:"Shanghai AI Lab",category:"language",description:"Open source from Shanghai AI Lab.",new:true,openSource:true},
+{id:324,name:"InternLM 3",company:"Shanghai AI Lab",category:"language",description:"Open source instruction model.",new:false,openSource:true},
+{id:325,name:"InternLM-VL",company:"Shanghai AI Lab",category:"multimodal",description:"Vision-language from Shanghai AI Lab.",new:false,openSource:true},
+// === OPEN SOURCE MODELS ===
+{id:52,name:"Llama 4 Maverick",company:"Meta AI",category:"language",description:"Open source flagship. 0.7 GPQA. Vision + text, 10M context.",new:true,openSource:true},
+{id:53,name:"Llama 4 Scout",company:"Meta AI",category:"language",description:"Efficient open source variant with strong reasoning.",new:true,openSource:true},
+{id:54,name:"Llama 3.3 70B",company:"Meta AI",category:"language",description:"Strong multilingual and reasoning. Open source.",new:false,openSource:true},
+{id:55,name:"Llama 3.2 Vision",company:"Meta AI",category:"multimodal",description:"Open-source multimodal with image understanding.",new:false,openSource:true},
+{id:56,name:"Code Llama 70B",company:"Meta AI",category:"code",description:"Open source code generation model.",new:false,openSource:true},
+{id:57,name:"MusicGen Studio",company:"Meta AI",category:"audio",description:"Advanced text-to-music. Open source.",new:true,openSource:true},
+{id:58,name:"DeepSeek V3.2",company:"DeepSeek",category:"language",description:"Efficient reasoning & agentic AI. 1M token context. Open source.",new:true,openSource:true},
+{id:59,name:"DeepSeek R2",company:"DeepSeek",category:"reasoning",description:"Next-gen reasoning with enhanced coding. Open source.",new:true,openSource:true},
+{id:60,name:"DeepSeek R1",company:"DeepSeek",category:"reasoning",description:"Open-source reasoning matching o1. 79.8% AIME.",new:false,openSource:true},
+{id:61,name:"DeepSeek R1 Zero",company:"DeepSeek",category:"reasoning",description:"Zero-pretrained reasoning. Open source. 0.7 GPQA.",new:true,openSource:true},
+{id:62,name:"DeepSeek R1 Distill Qwen 1.5B",company:"DeepSeek",category:"reasoning",description:"Lightweight reasoning. Open source. 0.3 GPQA.",new:true,openSource:true},
+{id:63,name:"DeepSeek-Coder-V2",company:"DeepSeek",category:"code",description:"Top open-source code model.",new:false,openSource:true},
+{id:64,name:"DeepSeek-V3",company:"DeepSeek",category:"language",description:"671B MoE open-source model.",new:false,openSource:true},
+{id:65,name:"Qwen3 Ultra",company:"Alibaba Cloud",category:"language",description:"Flagship Qwen. Open source with reasoning.",new:true,openSource:true},
+{id:66,name:"Qwen3 VL 30B A3B",company:"Alibaba Cloud",category:"multimodal",description:"Vision-language with thinking. Open source. 0.7 GPQA.",new:true,openSource:true},
+{id:67,name:"Qwen3 0.6B",company:"Alibaba Cloud",category:"language",description:"Compact open source model. 45.6M downloads.",new:true,openSource:true},
+{id:68,name:"Qwen2.5-7B-Instruct",company:"Alibaba Cloud",category:"language",description:"Popular open source. 52.4M downloads.",new:false,openSource:true},
+{id:69,name:"Qwen2.5-3B-Instruct",company:"Alibaba Cloud",category:"language",description:"Compact open source model.",new:false,openSource:true},
+{id:70,name:"Qwen2.5-VL-3B-Instruct",company:"Alibaba Cloud",category:"multimodal",description:"Open source vision model. 49.5M downloads.",new:false,openSource:true},
+{id:71,name:"Qwen2.5-Coder-32B",company:"Alibaba Cloud",category:"code",description:"Open source coding. 92% HumanEval.",new:false,openSource:true},
+{id:72,name:"Qwen2-Audio",company:"Alibaba Cloud",category:"audio",description:"Open source audio understanding.",new:false,openSource:true},
+{id:73,name:"QwQ-32B Preview",company:"Alibaba Cloud",category:"reasoning",description:"Open source reasoning with math abilities.",new:false,openSource:true},
+{id:74,name:"Gemma 3",company:"Google DeepMind",category:"language",description:"Open-source with strong multilingual.",new:true,openSource:true},
+{id:75,name:"Gemma 2 27B",company:"Google DeepMind",category:"language",description:"Open-source model with strong performance.",new:false,openSource:true},
+{id:76,name:"OLMo 2 13B",company:"Ai2",category:"language",description:"Best fully open language model. Trains on 5T tokens.",new:true,openSource:true},
+{id:77,name:"OLMo 2 7B",company:"Ai2",category:"language",description:"Fully open model competing with Llama 3.1 8B.",new:true,openSource:true},
+{id:78,name:"OLMoE 1B-7B",company:"Ai2",category:"language",description:"Open source MoE with on-device iOS app.",new:true,openSource:true},
+{id:79,name:"Molmo 72B",company:"Ai2",category:"multimodal",description:"Open state-of-the-art multimodal.",new:false,openSource:true},
+{id:80,name:"Molmo 7B",company:"Ai2",category:"multimodal",description:"Open source multimodal model.",new:false,openSource:true},
+{id:81,name:"Mixtral 8x22B",company:"Mistral AI",category:"language",description:"Open-source MoE model.",new:false,openSource:true},
+{id:82,name:"Codestral",company:"Mistral AI",category:"code",description:"Open source code. 80+ languages.",new:false,openSource:true},
+{id:83,name:"Mistral NeMo",company:"Mistral AI",category:"language",description:"Open source compact model.",new:true,openSource:true},
+{id:84,name:"Falcon 3",company:"TII",category:"language",description:"Open source from TII. Strong performance.",new:true,openSource:true},
+{id:85,name:"Falcon 3 Instruct",company:"TII",category:"language",description:"Open source instruction model.",new:true,openSource:true},
+{id:86,name:"Falcon 3 Mamba",company:"TII",category:"language",description:"Open source Mamba-based model.",new:true,openSource:true},
+{id:87,name:"Granite 3.0 8B",company:"IBM",category:"language",description:"Open source enterprise model.",new:true,openSource:true},
+{id:88,name:"Granite 3.0 3B",company:"IBM",category:"language",description:"Compact open source enterprise model.",new:true,openSource:true},
+{id:89,name:"Granite 3.0 Vision 8B",company:"IBM",category:"multimodal",description:"Open source multimodal for enterprise.",new:true,openSource:true},
+{id:90,name:"WizardLM-2 8x22B",company:"Microsoft",category:"language",description:"Open source instruction-following MoE.",new:true,openSource:true},
+{id:91,name:"WizardLM-2 7B",company:"Microsoft",category:"language",description:"Open source instruction model.",new:false,openSource:true},
+{id:92,name:"DeepSeek-VL2",company:"DeepSeek",category:"multimodal",description:"Open source vision-language model.",new:true,openSource:true},
+{id:93,name:"DeepSeek-Janus-Pro",company:"DeepSeek",category:"multimodal",description:"Open source unified multimodal.",new:true,openSource:true},
+{id:94,name:"LLaVA Next",company:"LLaVA Project",category:"multimodal",description:"Open source multimodal. Leading open vision-language.",new:true,openSource:true},
+{id:95,name:"LLaVA",company:"LLaVA Project",category:"multimodal",description:"Open source vision-language model.",new:false,openSource:true},
+{id:96,name:"BLOOM 176B",company:"BigScience",category:"language",description:"Large open source multilingual model.",new:false,openSource:true},
+{id:97,name:"OpenChat 3.5",company:"OpenChat",category:"language",description:"Open source chat model.",new:false,openSource:true},
+{id:98,name:"OpenChat 3.6",company:"OpenChat",category:"language",description:"Open source chat model with reasoning.",new:true,openSource:true},
+{id:99,name:"Zephyr 7B",company:"Hugging Face",category:"language",description:"Open source chat model.",new:false,openSource:true},
+{id:100,name:"OpenHermes 2.5",company:"Teknium",category:"language",description:"Open source instruction model.",new:false,openSource:true},
+{id:101,name:"OpenCodePreacher",company:"OpenCode",category:"code",description:"Open source code preaching model.",new:true,openSource:true},
+{id:102,name:"StarCoder 2",company:"BigCode",category:"code",description:"Open source code generation.",new:false,openSource:true},
+{id:103,name:"SantaCoder",company:"BigCode",category:"code",description:"Open source code model.",new:false,openSource:true},
+{id:104,name:"Phi-3 Mini",company:"Microsoft",category:"language",description:"Open source compact model.",new:false,openSource:true},
+{id:105,name:"Phi-3 Medium",company:"Microsoft",category:"language",description:"Open source medium model.",new:false,openSource:true},
+{id:106,name:"Stable Diffusion 3.5",company:"Stability AI",category:"image",description:"Open source image generation.",new:false,openSource:true},
+{id:107,name:"Stable Diffusion XL",company:"Stability AI",category:"image",description:"Open source high-quality image.",new:false,openSource:true},
+{id:108,name:"Stable Video Diffusion",company:"Stability AI",category:"video",description:"Open source video generation.",new:false,openSource:true},
+{id:109,name:"Stable Audio 3.0",company:"Stability AI",category:"audio",description:"Open source text-to-audio.",new:true,openSource:true},
+{id:110,name:"FLUX.1 Pro",company:"Black Forest Labs",category:"image",description:"Top-tier open source image generation.",new:false,openSource:true},
+{id:111,name:"FLUX.1 Dev",company:"Black Forest Labs",category:"image",description:"Open source image generation.",new:true,openSource:true},
+{id:112,name:"FLUX.1 Schnell",company:"Black Forest Labs",category:"image",description:"Fast open source image.",new:true,openSource:true},
+{id:113,name:"CogVideoX",company:"Zhipu AI",category:"video",description:"Open source text-to-video.",new:false,openSource:true},
+{id:114,name:"Hunyuan-Large",company:"Tencent",category:"language",description:"Open source 389B MoE.",new:false,openSource:true},
+{id:115,name:"HunyuanVideo",company:"Tencent",category:"video",description:"Open source video generation.",new:false,openSource:true},
+{id:116,name:"Mistral Small 3.1",company:"Mistral AI",category:"language",description:"Open source efficient model.",new:true,openSource:true},
+{id:117,name:"Codestral 2501",company:"Mistral AI",category:"code",description:"Open source code model.",new:true,openSource:true},
+{id:118,name:"Aya Expanse",company:"Cohere",category:"language",description:"Open multilingual model.",new:true,openSource:true},
+{id:119,name:"Command R7B",company:"Cohere",category:"language",description:"Open source RAG model.",new:true,openSource:true},
+{id:120,name:"Yi-1.5",company:"01.AI",category:"language",description:"Open source Yi fine-tuned.",new:true,openSource:true},
+{id:121,name:"Yi-Vision",company:"01.AI",category:"multimodal",description:"Open source vision model.",new:false,openSource:true},
+{id:122,name:"DBRX",company:"Databricks",category:"language",description:"Open source MoE model.",new:false,openSource:true},
+{id:123,name:"Grok-1",company:"xAI",category:"language",description:"Open source base model.",new:false,openSource:true},
+{id:124,name:"Grok-1.5 Vision",company:"xAI",category:"multimodal",description:"Open source vision model.",new:false,openSource:true},
+{id:125,name:"BlueWhale",company:"Axolotl",category:"language",description:"Open source instruction model.",new:false,openSource:true},
+{id:126,name:"LLaVA-Next-Interleave",company:"LLaVA Project",category:"multimodal",description:"Open source interleaved multimodal.",new:true,openSource:true},
+{id:127,name:"Qwen2.5-Coder-3B",company:"Alibaba Cloud",category:"code",description:"Open source compact coder.",new:false,openSource:true},
+{id:128,name:"Qwen2-Math",company:"Alibaba Cloud",category:"reasoning",description:"Open source math model.",new:true,openSource:true},
+{id:129,name:"Qwen2-Math-72B",company:"Alibaba Cloud",category:"reasoning",description:"Open source large math model.",new:true,openSource:true},
+{id:130,name:"Gemma 3 IT",company:"Google DeepMind",category:"language",description:"Open source instruction-tuned.",new:true,openSource:true}
+];
+
+let reviews=[];
+let userModels=[];
+let currentFilter='all',currentRating=0,currentDetailModelId=null;
+
+async function initData(){
+    await checkAuth();
+    await loadFromSupabase();
+}
+
+async function loadFromSupabase(){
+    const {data:reviewData}=await supabase.from('reviews').select('*').order('created_at',{ascending:false});
+    if(reviewData)reviews=reviewData;
+    const {data:modelData}=await supabase.from('user_models').select('*').order('created_at',{ascending:false});
+    if(modelData)userModels=modelData;
+    renderModels();
+    renderReviewsFeed();
+    updateHeroStats();
+}
+
+function getAllModels(){return aiModels.concat(userModels.map(function(m){return{id:m.id,name:m.name,company:m.company,category:m.category,description:m.description,openSource:m.is_open_source,isUser:true,new:true}}))}
+
+function saveUserModels(){localStorage.setItem('zeviewer_models',JSON.stringify(userModels))}
+function getModelStats(id){var r=reviews.filter(function(x){return x.model_id===id});return{count:r.length,avg:r.length?r.reduce(function(s,x){return s+x.rating},0)/r.length:0}}
+function escapeHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function renderStars(n){return Array(5).fill(0).map(function(_,i){return '<svg class="star-display '+(i<n?'text-yellow-400':'text-[#2a2a2a]')+'" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'}).join('')}
+
+document.addEventListener('DOMContentLoaded',function(){initData();setupScrollReveal()});
+
+async function checkAuth(){
+    const {data:{session}}=await supabase.auth.getSession();
+    if(session?.user){
+        currentUser=session.user;
+        showSignedIn();
+    }else{
+        showSignedOut();
+    }
+    supabase.auth.onAuthStateChange(function(event,session){
+        if(session?.user){
+            currentUser=session.user;
+            showSignedIn();
+            if(pendingAction){pendingAction();pendingAction=null;}
+        }else{
+            currentUser=null;
+            showSignedOut();
+        }
+    });
+}
+
+function showSignedIn(){
+    document.getElementById('sign-in-nav-btn').classList.add('hidden');
+    document.getElementById('auth-nav').classList.remove('hidden');
+    document.getElementById('user-email-display').textContent=currentUser.email;
+}
+
+function showSignedOut(){
+    document.getElementById('sign-in-nav-btn').classList.remove('hidden');
+    document.getElementById('auth-nav').classList.add('hidden');
+}
+
+function openAuthModal(mode){
+    authMode=mode;
+    document.getElementById('auth-modal-title').textContent=mode==='signin'?'Sign In':'Create Account';
+    document.getElementById('auth-modal-subtitle').textContent=mode==='signin'?'Sign in to write reviews and add models':'Create an account to contribute';
+    document.getElementById('auth-submit-btn').textContent=mode==='signin'?'Sign In':'Create Account';
+    document.getElementById('auth-toggle-link').textContent=mode==='signin'?'Sign Up':'Sign In';
+    document.getElementById('auth-form').reset();
+    document.getElementById('auth-error').classList.add('hidden');
+    document.getElementById('auth-modal').classList.add('active');
+}
+
+function closeAuthModal(){document.getElementById('auth-modal').classList.remove('active');document.body.style.overflow=''}
+
+function toggleAuthMode(e){
+    e.preventDefault();
+    authMode=authMode==='signin'?'signup':'signin';
+    openAuthModal(authMode);
+}
+
+async function handleAuth(e){
+    e.preventDefault();
+    var email=document.getElementById('auth-email').value;
+    var password=document.getElementById('auth-password').value;
+    var errorEl=document.getElementById('auth-error');
+    errorEl.classList.add('hidden');
+    
+    if(authMode==='signin'){
+        const {data,error}=await supabase.auth.signInWithPassword({email,password});
+        if(error){errorEl.textContent=error.message;errorEl.classList.remove('hidden');}
+        else{closeAuthModal();showToast('Signed in successfully!');}
+    }else{
+        const {data,error}=await supabase.auth.signUp({email,password});
+        if(error){errorEl.textContent=error.message;errorEl.classList.remove('hidden');}
+        else{closeAuthModal();showToast('Account created! Please check your email to verify.');}
+    }
+}
+
+async function signOut(){
+    await supabase.auth.signOut();
+    showSignedOut();
+    showToast('Signed out successfully');
+}
+
+async function checkAuthAndReview(){
+    if(!currentUser){openAuthModal('signin');pendingAction=function(){scrollToModels()};return;}
+    scrollToModels();
+}
+
+function updateHeroStats(){
+    var allModels=getAllModels();
+    var co=new Set(allModels.map(function(m){return m.company}));
+    var ca=new Set(allModels.map(function(m){return m.category}));
+    animNum('stat-models-count',aiModels.length);animNum('stat-reviews-count',reviews.length);
+    animNum('stat-companies-count',co.size);animNum('stat-categories-count',ca.size);
+}
+function animNum(id,t){
+    var el=document.getElementById(id),c=0,s=t/(1500/16);
+    function u(){c+=s;if(c<t){el.textContent=Math.floor(c).toLocaleString();requestAnimationFrame(u)}else{el.textContent=t.toLocaleString()}}
+    var o=new IntersectionObserver(function(e){if(e[0].isIntersecting){u();o.disconnect()}});o.observe(el);
+}
+
+function renderModels(){
+    var g=document.getElementById('models-grid'),q=document.getElementById('search-input').value.toLowerCase();
+    var allM=getAllModels();
+    var f=allM.filter(function(m){
+        var ms=m.name.toLowerCase().indexOf(q)>-1||m.company.toLowerCase().indexOf(q)>-1||m.description.toLowerCase().indexOf(q)>-1;
+        var filterMatch=currentFilter==='all'||m.category===currentFilter||(currentFilter==='open-source'&&m.openSource);
+        return ms&&filterMatch;
+    });
+    g.innerHTML=f.map(function(m,i){var s=getModelStats(m.id);var newBadge=m.new?'<span class="badge badge-new mr-2">NEW</span>':'';var osBadge=m.openSource?'<span class="badge badge-open-source mr-2">OPEN SOURCE</span>':'';var userBadge=m.isUser?'<span class="badge badge-user mr-2" style="background:rgba(168,85,247,.2);color:#a855f7">COMMUNITY</span>':'';return '<div class="model-card reveal" style="transition-delay:'+Math.min(i*0.03,0.5)+'s" onclick="openDetailModal('+m.id+')"><div class="flex items-start justify-between mb-4"><div><span class="badge badge-ai mb-2">'+m.category+'</span><h3 class="text-lg font-medium">'+newBadge+osBadge+userBadge+m.name+'</h3><p class="text-[#a8a49e] text-sm">'+m.company+'</p></div><svg class="w-5 h-5 text-[#a8a49e] flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div><p class="text-[#a8a49e] text-sm mb-4 line-clamp-2">'+m.description+'</p><div class="flex items-center gap-4 text-sm"><span class="text-[#a8a49e]">'+s.count+' review'+(s.count!==1?'s':'')+'</span>'+(s.avg>0?'<div class="flex items-center gap-1"><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span>'+s.avg.toFixed(1)+'</span></div>':'')+'</div></div>'}).join('');
+    setTimeout(function(){var els=document.querySelectorAll('#models-grid .reveal');for(var i=0;i<els.length;i++)els[i].classList.add('active')},100);
+}
+
+function renderReviewsFeed(){
+    var c=document.getElementById('reviews-feed');
+    if(!reviews.length){c.innerHTML='<p class="text-[#a8a49e] text-center py-8">No reviews yet. Be the first!</p>';return}
+    var sorted=reviews.slice().sort(function(a,b){return b.id-a.id});
+    c.innerHTML=sorted.map(function(r){return '<div class="review-item"><div class="flex justify-between items-start mb-3"><div><span class="font-medium">'+escapeHtml(r.model_name)+'</span><span class="text-[#a8a49e] text-sm ml-2">by '+escapeHtml(r.reviewer_name||'Anonymous')+'</span></div><div class="flex items-center gap-1 flex-shrink-0">'+renderStars(r.rating)+'</div></div><p class="text-sm mb-2">'+escapeHtml(r.performance_review)+'</p>'+(r.improvement_suggestions?'<p class="text-sm text-[#a8a49e]"><span class="text-[#f5f2eb]">Suggestion:</span> '+escapeHtml(r.improvement_suggestions)+'</p>':'')+'<p class="text-[#a8a49e] text-xs mt-3">'+new Date(r.created_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})+'</p></div>'}).join('');
+}
+
+function setFilter(f,btn){currentFilter=f;var tags=document.querySelectorAll('.filter-tag');for(var i=0;i<tags.length;i++)tags[i].classList.remove('active');btn.classList.add('active');renderModels()}
+function filterModels(){renderModels()}
+
+function openDetailModal(id){
+    var allM=getAllModels();var m=allM.find(function(x){return x.id===id});if(!m)return;currentDetailModelId=id;
+    var s=getModelStats(id),mr=reviews.filter(function(r){return r.model_id===id}).sort(function(a,b){return b.id-a.id});
+    document.getElementById('detail-category').textContent=m.category;
+    document.getElementById('detail-model-name').textContent=m.name;
+    document.getElementById('detail-company').textContent=m.company;
+    document.getElementById('detail-description').textContent=m.description;
+    document.getElementById('detail-avg-rating').textContent=s.avg>0?s.avg.toFixed(1):'-';
+    document.getElementById('detail-review-count').textContent=s.count+' review'+(s.count!==1?'s':'');
+    var rc=document.getElementById('detail-reviews');
+    if(!mr.length){rc.innerHTML='<p class="text-[#a8a49e] text-center py-8">No reviews yet. Be the first!</p>'}
+    else{rc.innerHTML=mr.map(function(r){return '<div class="review-item"><div class="flex justify-between items-start mb-2"><span class="text-sm font-medium">'+escapeHtml(r.reviewer_name||'Anonymous')+'</span><div class="flex items-center gap-1">'+renderStars(r.rating)+'</div></div><p class="text-sm mb-1">'+escapeHtml(r.performance_review)+'</p>'+(r.improvement_suggestions?'<p class="text-sm text-[#a8a49e] mt-2"><span class="text-[#f5f2eb]">Suggestion:</span> '+escapeHtml(r.improvement_suggestions)+'</p>':'')+'<p class="text-[#a8a49e] text-xs mt-2">'+new Date(r.created_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})+'</p></div>'}).join('')}
+    document.getElementById('detail-modal').classList.add('active');document.body.style.overflow='hidden';
+}
+function closeDetailModal(){document.getElementById('detail-modal').classList.remove('active');document.body.style.overflow=''}
+
+function openReviewModal(id){
+    var allM=getAllModels();var m=allM.find(function(x){return x.id===id});if(!m)return;
+    document.getElementById('modal-model-name').textContent=m.name;
+    document.getElementById('review-model-id').value=id;
+    document.getElementById('review-modal').classList.add('active');
+    document.body.style.overflow='hidden';
+    document.getElementById('review-form').reset();setRating(0);
+}
+function closeReviewModal(){document.getElementById('review-modal').classList.remove('active');document.body.style.overflow=''}
+
+function setRating(n){currentRating=n;document.getElementById('rating-value').value=n;var stars=document.querySelectorAll('#star-rating .star');for(var i=0;i<stars.length;i++){if(i<n)stars[i].classList.add('active');else stars[i].classList.remove('active')}}
+
+async function submitReview(e){
+    e.preventDefault();
+    if(!currentUser){openAuthModal('signin');showToast('Please sign in to submit a review','error');return;}
+    var id=parseInt(document.getElementById('review-model-id').value),r=parseInt(document.getElementById('rating-value').value);
+    if(!r){showToast('Please select a rating','error');return}
+    var allM=getAllModels();var m=allM.find(function(x){return x.id===id});
+    var reviewerName=document.getElementById('reviewer-name').value.trim()||currentUser.email.split('@')[0];
+    var reviewData={model_id:id,model_name:m.name,company:m.company,rating:r,reviewer_name:reviewerName,performance_review:document.getElementById('performance-review').value,improvement_suggestions:document.getElementById('improvement-suggestions').value||null};
+    var {data,error}=await supabase.from('reviews').insert(reviewData);
+    if(error){showToast('Error: '+error.message,'error');return;}
+    closeReviewModal();await loadFromSupabase();showToast('Review submitted! Everyone can see it now.');
+}
+
+function showToast(msg,type){
+    type=type||'success';var t=document.getElementById('toast'),ic=t.querySelector('svg');
+    document.getElementById('toast-message').textContent=msg;
+    if(type==='error'){ic.innerHTML='<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';ic.className='w-5 h-5 text-red-400'}
+    else{ic.innerHTML='<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';ic.className='w-5 h-5 text-green-400'}
+    t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000);
+}
+
+function openAddModelModal(){
+    if(!currentUser){openAuthModal('signin');showToast('Please sign in to add a model','error');return;}
+    document.getElementById('add-model-modal').classList.add('active');
+    document.body.style.overflow='hidden';
+    document.getElementById('add-model-form').reset();
+}
+function closeAddModelModal(){document.getElementById('add-model-modal').classList.remove('active');document.body.style.overflow=''}
+
+async function submitNewModel(e){
+    e.preventDefault();
+    if(!currentUser){openAuthModal('signin');showToast('Please sign in to add a model','error');return;}
+    var name=document.getElementById('model-name').value.trim();
+    var company=document.getElementById('model-company').value.trim();
+    var category=document.getElementById('model-category').value;
+    var description=document.getElementById('model-description').value.trim();
+    var isOpenSource=document.getElementById('model-opensource').checked;
+    if(!name||!company||!category||!description){showToast('Please fill in all required fields','error');return}
+    var modelData={name:name,company:company,category:category,description:description,is_open_source:isOpenSource};
+    var {data,error}=await supabase.from('user_models').insert(modelData);
+    if(error){showToast('Error: '+error.message,'error');return;}
+    closeAddModelModal();await loadFromSupabase();showToast('Model "'+name+'" added successfully!');
+}
+
+function setupScrollReveal(){var o=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('active')})},{threshold:0.1});var els=document.querySelectorAll('.reveal');for(var i=0;i<els.length;i++)o.observe(els[i])}
+function scrollToModels(){document.getElementById('models').scrollIntoView({behavior:'smooth'})}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeReviewModal();closeDetailModal();closeAddModelModal();closeAuthModal()}});
+</script>
+</body>
+</html>'''
+
+with open(os.path.join(os.path.dirname(__file__), 'zeviewer.html'), 'w', encoding='utf-8') as f:
+    f.write(html)
+print('Done writing zeviewer.html, length:', len(html))
+print('Total models:', html.count('{id:'))
