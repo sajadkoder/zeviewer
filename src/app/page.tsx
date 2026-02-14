@@ -572,6 +572,7 @@ export default function Home() {
                   <span className="text-lg sm:text-xl font-semibold tracking-tight">zeviewer</span>
                 </div>
                 <p className="text-[#a8a49e] text-xs sm:text-sm">Open, community-driven AI model reviews. No login required. 1000+ models.</p>
+              </div>
               <div>
                 <h4 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">Platform</h4>
                 <ul className="space-y-2 sm:space-y-3 text-[#a8a49e] text-xs sm:text-sm">
