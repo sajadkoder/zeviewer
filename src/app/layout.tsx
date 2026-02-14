@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Zeviewer - AI Model Review Platform | Rate & Review AI Models",
-  description: "Zeviewer is an open AI model review platform. Browse, rate, and review the latest AI models from OpenAI, Google, Anthropic, Meta, DeepSeek and more. No login required. 1000+ models including GPT-5, Claude 4, Gemini 3, Llama 4, DeepSeek R2.",
+  description: "Zeviewer is an open AI model review platform. Browse, rate, and review the latest AI models from OpenAI, Google, Anthropic, Meta, DeepSeek and more. 1000+ models including GPT-5, Claude 4, Gemini 3, Llama 4, DeepSeek R2.",
   keywords: "AI model reviews, ChatGPT reviews, Claude reviews, Gemini reviews, AI ratings, machine learning reviews, OpenAI, Anthropic, Google DeepMind, Meta AI, DeepSeek, Llama, Qwen, review AI models, rate AI models",
   other: {
     "cache-control": "public, max-age=3600, s-maxage=86400",

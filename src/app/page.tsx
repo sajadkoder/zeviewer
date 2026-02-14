@@ -571,7 +571,7 @@ export default function Home() {
                   </div>
                   <span className="text-lg sm:text-xl font-semibold tracking-tight">zeviewer</span>
                 </div>
-                <p className="text-[#a8a49e] text-xs sm:text-sm">Open, community-driven AI model reviews. No login required. 1000+ models.</p>
+                <p className="text-[#a8a49e] text-xs sm:text-sm">Open, community-driven AI model reviews. 1000+ models.</p>
               </div>
               <div>
                 <h4 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">Platform</h4>
@@ -582,17 +582,10 @@ export default function Home() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">Resources</h4>
-                <ul className="space-y-2 sm:space-y-3 text-[#a8a49e] text-xs sm:text-sm">
-                  <li><a href="/sitemap.xml" className="hover:text-[#f5f2eb] transition-colors">Sitemap</a></li>
-                  <li><a href="/robots.txt" className="hover:text-[#f5f2eb] transition-colors">Robots.txt</a></li>
-                </ul>
-              </div>
-              <div>
                 <h4 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">Legal</h4>
                 <ul className="space-y-2 sm:space-y-3 text-[#a8a49e] text-xs sm:text-sm">
-                  <li><a href="#" className="hover:text-[#f5f2eb] transition-colors">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-[#f5f2eb] transition-colors">Terms of Service</a></li>
+                  <li><a href="/privacy-policy" className="hover:text-[#f5f2eb] transition-colors">Privacy Policy</a></li>
+                  <li><a href="/terms-of-service" className="hover:text-[#f5f2eb] transition-colors">Terms of Service</a></li>
                 </ul>
               </div>
             </div>
