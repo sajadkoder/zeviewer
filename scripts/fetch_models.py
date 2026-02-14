@@ -120,23 +120,23 @@ def is_open_source(model_id):
     return any(indicator.lower() in model_lower for indicator in os_indicators)
 
 def fetch_trending_models(limit=50):
-    """Fetch trending models from HuggingFace."""
+    """Fetch trending models from HuggingFace - both recently updated and most downloaded."""
     print("Fetching trending models from HuggingFace...")
     
     models = []
     seen_ids = set()
     
-    # Get trending models (sorted by downloads)
-    for model in list_models(sort="downloads", limit=limit * 3):
+    # Get recently updated models first
+    print("Fetching recently updated models...")
+    for model in list_models(sort="lastModified", limit=limit * 2):
         if model.id in seen_ids:
             continue
         seen_ids.add(model.id)
         
-        # Skip very small models (often not useful)
+        # Skip very small models
         if model.id.startswith("tiny-") or model.id.startswith("small-"):
             continue
         
-        # Get task/category
         card = model.card_data or {}
         task = getattr(model, 'pipeline_tag', None) or card.get('library_name', 'text-generation')
         
@@ -152,19 +152,54 @@ def fetch_trending_models(limit=50):
             "isTrending": True,
         }
         
-        # Add description if empty
         if not model_info["description"]:
             if card.get("language"):
                 model_info["description"] = f"Model with {model.downloads:,} downloads. Language: {card.get('language')}"
             else:
-                model_info["description"] = f"Popular model with {model.downloads:,} downloads on HuggingFace."
+                model_info["description"] = f"Model with {model.downloads:,} downloads on HuggingFace."
         
         models.append(model_info)
         
         if len(models) >= limit:
             break
     
-    return models
+    # Also add popular models to ensure we have a good mix
+    print("Fetching popular models...")
+    for model in list_models(sort="downloads", limit=limit):
+        if model.id in seen_ids:
+            continue
+        seen_ids.add(model.id)
+        
+        if model.id.startswith("tiny-") or model.id.startswith("small-"):
+            continue
+        
+        card = model.card_data or {}
+        task = getattr(model, 'pipeline_tag', None) or card.get('library_name', 'text-generation')
+        
+        model_info = {
+            "id": f"hf_{model.id.replace('/', '_')}",
+            "name": model.id,
+            "company": get_company_from_model_id(model.id),
+            "category": get_task_category(task),
+            "description": card.get("model_summary", ""),
+            "downloads": model.downloads,
+            "lastUpdated": str(model.last_modified) if model.last_modified else "",
+            "openSource": is_open_source(model.id),
+            "isTrending": True,
+        }
+        
+        if not model_info["description"]:
+            if card.get("language"):
+                model_info["description"] = f"Model with {model.downloads:,} downloads. Language: {card.get('language')}"
+            else:
+                model_info["description"] = f"Model with {model.downloads:,} downloads on HuggingFace."
+        
+        models.append(model_info)
+        
+        if len(models) >= limit * 2:
+            break
+    
+    return models[:limit * 2]  # Return mix of recent and popular
 
 def save_to_json(models, filename="trending_models.json"):
     """Save models to JSON file."""
