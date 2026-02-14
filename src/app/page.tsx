@@ -3,6 +3,32 @@
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { supabase, Review, UserModel } from "@/lib/supabase";
 import { aiModels, AIModel } from "@/data/models";
+import trendingModelsData from "@/data/trending_models.json";
+
+export interface TrendingModel {
+  id: string;
+  name: string;
+  company: string;
+  category: string;
+  description: string;
+  downloads: number;
+  lastUpdated: string;
+  openSource: boolean;
+  isTrending: boolean;
+}
+
+const trendingModels: AIModel[] = (trendingModelsData as TrendingModel[]).map((m) => ({
+  id: parseInt(m.id.replace("hf_", "").replace(/\D/g, "")) + 10000,
+  name: m.name.split("/").pop() || m.name,
+  company: m.company,
+  category: m.category,
+  description: m.description,
+  openSource: m.openSource,
+  isUser: false,
+  new: false,
+  isTrending: true,
+  downloads: m.downloads,
+}));
 
 const ModelCard = memo(function ModelCard({ model, stats, onClick }: { model: AIModel; stats: { count: number; avg: number }; onClick: () => void }) {
   return (
@@ -12,6 +38,7 @@ const ModelCard = memo(function ModelCard({ model, stats, onClick }: { model: AI
           <span className="badge badge-ai mb-2 inline-block">{model.category}</span>
           <h3 className="text-lg font-medium truncate">
             {model.new && <span className="badge badge-new mr-1">NEW</span>}
+            {model.isTrending && <span className="badge mr-1" style={{ background: "rgba(251,191,36,0.2)", color: "#fbbf24" }}>TRENDING</span>}
             {model.openSource && <span className="badge badge-open-source mr-1">OPEN SOURCE</span>}
             {model.isUser && <span className="badge mr-1" style={{ background: "rgba(168,85,247,0.2)", color: "#a855f7" }}>COMMUNITY</span>}
             {model.name}
@@ -67,7 +94,7 @@ export default function Home() {
       isUser: true,
       new: true,
     }));
-    return [...aiModels, ...userMapped];
+    return [...aiModels, ...userMapped, ...trendingModels];
   }, [userModels]);
 
   const getModelStats = (modelId: number) => {
@@ -130,6 +157,11 @@ export default function Home() {
 
   const allModels = useMemo(() => getAllModels(), [userModels]);
   
+  const companies = useMemo(() => {
+    const unique = new Set(allModels.map((m) => m.company));
+    return Array.from(unique).sort();
+  }, [allModels]);
+
   const filteredModels = useMemo(() => {
     return allModels.filter((m) => {
       const searchLower = searchQuery.toLowerCase();
@@ -140,7 +172,7 @@ export default function Home() {
         m.description.toLowerCase().includes(searchLower);
       const filterMatch =
         currentFilter === "all" ||
-        m.category === currentFilter ||
+        m.company === currentFilter ||
         (currentFilter === "open-source" && m.openSource);
       return searchMatch && filterMatch;
     });
@@ -378,7 +410,7 @@ export default function Home() {
                 <span className="font-serif italic text-[#f5f2eb]">artificial intelligence</span>
               </h1>
               <p className="text-base sm:text-xl text-[#a8a49e] max-w-2xl mb-8 sm:mb-12 leading-relaxed animate-fade-up opacity-0 stagger-2">
-                Sign in to write reviews and add models. Browse {aiModels.length}+ AI models, drop your reviews, and see what everyone else thinks. Open and transparent.
+                Sign in to write reviews and add models. Browse {aiModels.length + trendingModels.length}+ AI models, drop your reviews, and see what everyone else thinks. Open and transparent.
               </p>
               <div className="flex flex-wrap gap-3 sm:gap-4 animate-fade-up opacity-0 stagger-3">
                 <button onClick={scrollToModels} className="btn-primary text-sm sm:text-base px-4 sm:px-8 py-2.5 sm:py-3.5">Browse AI Models</button>
@@ -398,7 +430,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mt-10 sm:mt-12 pt-10 sm:pt-12 border-t border-[#2a2a2a] animate-fade-up opacity-0 stagger-4">
               <div className="text-center sm:text-left">
-                <div className="stat-number text-[#f5f2eb] text-3xl sm:text-4xl md:text-5xl" id="stat-models-count">{aiModels.length}</div>
+                <div className="stat-number text-[#f5f2eb] text-3xl sm:text-4xl md:text-5xl" id="stat-models-count">{aiModels.length + trendingModels.length}</div>
                 <p className="text-[#a8a49e] mt-1 sm:mt-2 text-sm sm:text-base">AI Models</p>
               </div>
               <div className="text-center sm:text-left">
@@ -482,13 +514,27 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-10 reveal overflow-x-auto pb-2">
-              {["all", "language", "multimodal", "reasoning", "image", "video", "audio", "code", "open-source"].map((filter) => (
+              <button
+                key="all"
+                className={`filter-tag text-xs sm:text-sm whitespace-nowrap ${currentFilter === "all" ? "active" : ""}`}
+                onClick={() => setCurrentFilter("all")}
+              >
+                All
+              </button>
+              <button
+                key="open-source"
+                className={`filter-tag text-xs sm:text-sm whitespace-nowrap ${currentFilter === "open-source" ? "active" : ""}`}
+                onClick={() => setCurrentFilter("open-source")}
+              >
+                Open Source
+              </button>
+              {companies.map((company) => (
                 <button
-                  key={filter}
-                  className={`filter-tag text-xs sm:text-sm whitespace-nowrap ${currentFilter === filter ? "active" : ""}`}
-                  onClick={() => setCurrentFilter(filter)}
+                  key={company}
+                  className={`filter-tag text-xs sm:text-sm whitespace-nowrap ${currentFilter === company ? "active" : ""}`}
+                  onClick={() => setCurrentFilter(company)}
                 >
-                  {filter === "all" ? "All" : filter.charAt(0).toUpperCase() + filter.slice(1).replace("-", " ")}
+                  {company}
                 </button>
               ))}
             </div>

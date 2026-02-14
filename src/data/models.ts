@@ -7,6 +7,8 @@ export interface AIModel {
   new?: boolean;
   openSource?: boolean;
   isUser?: boolean;
+  isTrending?: boolean;
+  downloads?: number;
 }
 
 export const aiModels: AIModel[] = [
