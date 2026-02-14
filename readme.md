@@ -6,12 +6,13 @@
 
 ## Features
 
-- **Browse 157+ AI Models** - Language, Multimodal, Reasoning, Image, Video, Audio, Code
+- **Browse 1000+ AI Models** - Language, Multimodal, Reasoning, Image, Video, Audio, Code
 - **Write Reviews** - Rate models 1-5 stars and share your experience
 - **Add Models** - Submit new AI models to the database
 - **Open Source Models** - Filter and discover open source models
 - **Community Submissions** - User-submitted models marked as "COMMUNITY"
 - **User Authentication** - Sign up/sign in with email and password
+- **Privacy Policy & Terms of Service** - Legal pages included
 
 ---
 
@@ -19,24 +20,31 @@
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | HTML, CSS, JavaScript (Vanilla) |
+| Framework | Next.js 14 |
+| Language | TypeScript |
 | Styling | TailwindCSS |
 | Backend | Supabase (PostgreSQL) |
 | Auth | Supabase Auth |
-| Hosting | Any static hosting (Netlify, Vercel, etc.) |
+| Deployment | Static Export (Vercel, Netlify, Cloudflare Pages) |
 
 ---
 
 ## Quick Start
 
-### 1. Clone/Download
+### 1. Clone
 
 ```bash
-git clone https://github.com/your-repo/zeviewer.git
+git clone https://github.com/sajadkoder/zeviewer.git
 cd zeviewer
 ```
 
-### 2. Set Up Supabase
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure Supabase
 
 1. Create a project at [supabase.com](https://supabase.com)
 2. Go to **SQL Editor** and run:
@@ -76,32 +84,54 @@ ALTER TABLE user_models ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read reviews" ON reviews FOR SELECT USING (true);
 CREATE POLICY "Public read user_models" ON user_models FOR SELECT USING (true);
 
--- Write policies (only authenticated users)
+-- Write policies (authenticated users only)
 CREATE POLICY "Auth insert reviews" ON reviews FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Auth insert user_models" ON user_models FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 ```
 
 3. Go to **Authentication → Providers** and enable **Email**
 
-### 3. Configure Credentials
+### 4. Configure Environment
 
-In `zeviewer.html`, update these lines:
+Create `.env.local`:
 
-```javascript
-const SUPABASE_URL = 'https://your-project.supabase.co';
-const SUPABASE_KEY = 'your-anon-key';
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_KEY=your-anon-key
 ```
 
-### 4. Deploy
+### 5. Run Development Server
 
-**Option A - Netlify (Easiest):**
-1. Go to [netlify.com](https://netlify.com)
-2. Drag & drop `zeviewer.html` onto the page
+```bash
+npm run dev
+```
 
-**Option B - Vercel:**
+### 6. Build for Production
+
+```bash
+npm run build
+```
+
+Output will be in the `out/` directory, ready for static hosting.
+
+---
+
+## Deployment
+
+### Vercel (Recommended)
+
 ```bash
 npm i -g vercel
 vercel --prod
+```
+
+Or connect your GitHub repository to Vercel for automatic deployments.
+
+### Netlify
+
+```bash
+npm run build
+# Deploy the out/ folder
 ```
 
 ---
@@ -110,11 +140,25 @@ vercel --prod
 
 ```
 zeviewer/
-├── zeviewer.html      # Main application (all-in-one)
-├── write_html.py     # Script to regenerate HTML
-├── sitemap.xml       # SEO sitemap
-├── robots.txt        # Search engine directives
-└── README.md         # This file
+├── src/
+│   ├── app/
+│   │   ├── page.tsx              # Main page
+│   │   ├── layout.tsx            # Root layout
+│   │   ├── loading.tsx          # Loading state
+│   │   ├── globals.css           # Global styles
+│   │   ├── privacy-policy/       # Privacy Policy page
+│   │   └── terms-of-service/     # Terms of Service page
+│   ├── data/
+│   │   └── models.ts             # 1000+ AI models data
+│   └── lib/
+│       └── supabase.ts           # Supabase client
+├── public/
+│   ├── sitemap.xml               # SEO sitemap
+│   └── robots.txt                # Search engine directives
+├── next.config.js                # Next.js configuration
+├── tailwind.config.js            # Tailwind configuration
+├── package.json                  # Dependencies
+└── README.md                     # This file
 ```
 
 ---
@@ -122,27 +166,32 @@ zeviewer/
 ## How It Works
 
 ### For Users
-1. Browse models on the homepage
-2. Click any model to see details and reviews
-3. Sign in to write reviews or add new models
-4. All reviews are visible to everyone
+1. Browse 1000+ AI models on the homepage
+2. Filter by category or search for specific models
+3. Click any model to see details and reviews
+4. Sign in to write reviews or add new models
+5. All reviews are visible to everyone
 
 ### For Developers
+- Built with Next.js 14 App Router
+- Static export for fast performance
 - All data stored in Supabase
 - Reviews and models synced across all users
 - Authentication via Supabase Auth
-- No backend code needed
 
 ---
 
 ## AI Models Included
 
-- **OpenAI**: GPT-5.3, Claude Opus 4.6, Gemini 3, DALL-E 4, Sora
-- **Meta**: Llama 4, Code Llama, MusicGen
-- **DeepSeek**: V3.2, R2, R1, Janus-Pro
-- **Google**: Gemini 3, Gemma 3, Imagen 4, Veo 3
-- **Chinese Models**: ByteDance (Doubao, Seedance), Tencent (Hunyuan), Baidu (ERNIE), Zhipu (GLM), Moonshot (Kimi), and more
-- **Open Source**: Llama, Mistral, Qwen, OLMo, Falcon, and 50+ more
+The database includes 1000+ AI models up to February 2026:
+
+- **OpenAI**: GPT-5 series, Claude 4, DALL-E 4, Sora, Whisper
+- **Anthropic**: Claude 4 Opus, Claude 4 Sonnet, Claude 3.5
+- **Google**: Gemini 3, Gemma 3, Imagen 4, Veo 3, Whisper
+- **Meta**: Llama 4, Code Llama, MusicGen, Segment Anything
+- **DeepSeek**: V3, R2, R1, Janus-Pro
+- **Chinese Models**: ByteDance, Tencent, Baidu, Zhipu, Moonshot, Qwen
+- **Open Source**: Mistral, OLMo, Falcon, Stable Diffusion, and more
 
 ---
 
@@ -159,4 +208,4 @@ MIT License - Feel free to use and modify.
 
 ---
 
-**Built with ❤️ for the AI community**
+**Built with Next.js, TailwindCSS, and Supabase**
